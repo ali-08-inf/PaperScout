@@ -1,7 +1,7 @@
 #  PaperScout
 
 ![n8n](https://img.shields.io/badge/n8n-Automation-orange)
-![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4.1-green)
+![Llama](https://img.shields.io/badge/Llama-3.1--8B-blueviolet)
 ![Notion](https://img.shields.io/badge/Notion-Database-black)
 ![License](https://img.shields.io/badge/License-MIT-blue)
 
