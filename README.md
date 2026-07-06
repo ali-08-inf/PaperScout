@@ -63,3 +63,16 @@ The AI response is transformed into structured fields and automatically stored i
 | Database | Notion |
 | Data Processing | JavaScript |
 | Data Format | XML → JSON |
+
+
+#  Future Improvements
+
+- 💬 **Conversational Research Assistant** – Integrate an AI chatbot capable of searching the entire Notion knowledge base, answering questions about stored papers, and providing deeper explanations of research concepts.
+
+-  **In-Depth Paper Discussions** – Enable interactive conversations where users can explore a paper's methodology, architecture, results, and potential limitations beyond the generated summary.
+
+-  **Related Paper Recommendations** – Suggest similar or prerequisite papers based on the user's interests and previously stored research.
+
+-  **Research Analytics Dashboard** – Visualize trends such as popular research domains, publication frequency, and emerging topics.
+
+-  **Personalized Learning Paths** – Generate curated reading lists and project roadmaps tailored to the user's interests and skill level.
