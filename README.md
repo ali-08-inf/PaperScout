@@ -12,6 +12,8 @@ PaperScout automatically fetches research papers, extracts key insights using an
 -  Stores organized paper information in a Notion database.
 -  Built as a no-code/low-code automation using n8n.
 
+##  Workflow
+
 ###  1. Search for Papers
 The user provides a research topic, which is used to query the **arXiv API** for the latest publications.
 
@@ -40,7 +42,6 @@ The AI agent analyzes each paper and produces:
 The AI response is transformed into structured fields and automatically stored in a **Notion database**, creating a searchable repository of research papers.
 
 
-##  Workflow
 
 <p align="center">
   <img src="Assets/workflow.png" width="100%">
