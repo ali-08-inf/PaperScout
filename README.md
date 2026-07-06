@@ -12,7 +12,7 @@ PaperScout automatically fetches research papers, extracts key insights using an
 -  Stores organized paper information in a Notion database.
 -  Built as a no-code/low-code automation using n8n.
 
-##  Workflow
+#  Workflow
 
 ###  1. Search for Papers
 The user provides a research topic, which is used to query the **arXiv API** for the latest publications.
