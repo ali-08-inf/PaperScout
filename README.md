@@ -67,7 +67,7 @@ The AI response is transformed into structured fields and automatically stored i
 
 #  Future Improvements
 
-- 💬 **Conversational Research Assistant** – Integrate an AI chatbot capable of searching the entire Notion knowledge base, answering questions about stored papers, and providing deeper explanations of research concepts.
+-  **Conversational Research Assistant** – Integrate an AI chatbot capable of searching the entire Notion knowledge base, answering questions about stored papers, and providing deeper explanations of research concepts.
 
 -  **In-Depth Paper Discussions** – Enable interactive conversations where users can explore a paper's methodology, architecture, results, and potential limitations beyond the generated summary.
 
