@@ -51,3 +51,15 @@ The AI response is transformed into structured fields and automatically stored i
 <p align="center">
   <img src="Assets/workflow.png" width="100%">
 </p>
+
+
+#  Tech Stack
+
+| Category | Technologies |
+|----------|--------------|
+| Workflow Automation | n8n |
+| Research Source | arXiv API |
+| LLM | Meta Llama 3.1 8B |
+| Database | Notion |
+| Data Processing | JavaScript |
+| Data Format | XML → JSON |
