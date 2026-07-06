@@ -1,5 +1,10 @@
 #  PaperScout
 
+![n8n](https://img.shields.io/badge/n8n-Automation-orange)
+![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4.1-green)
+![Notion](https://img.shields.io/badge/Notion-Database-black)
+![License](https://img.shields.io/badge/License-MIT-blue)
+
 An AI powered n8n workflow that helps computer science students discover, understand, and organize research papers from arXiv.
 
 PaperScout automatically fetches research papers, extracts key insights using an AI model, and stores the results in a structured Notion database for easy browsing and future reference.
