@@ -43,5 +43,5 @@ The AI response is transformed into structured fields and automatically stored i
 ##  Workflow
 
 <p align="center">
-  <img src="assets/workflow.png" width="100%">
+  <img src="assets/workflow" width="100%">
 </p>
