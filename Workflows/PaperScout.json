@@ -1,0 +1,419 @@
+{
+  "name": "PaperScout",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "http://export.arxiv.org/api/query",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "search_query",
+              "value": "=cat:cs.CV AND all:\"{{ $json.chatInput }}\" ANDNOT ti:\"survey\" ANDNOT ti:\"review\""
+            },
+            {
+              "name": "max_results",
+              "value": "20"
+            },
+            {
+              "name": "start",
+              "value": "={{ Math.floor(Math.random() * 50) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        752,
+        -48
+      ],
+      "id": "a28ae20a-5b75-4d64-b3fa-147620745e79",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        544,
+        -192
+      ],
+      "id": "ecdad0d6-f8d1-4c18-843c-885564ef39a8",
+      "name": "Wait",
+      "webhookId": "2c357638-09bd-4b8b-9f5e-4305776df09c"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map(item => {\n  const paper = item.json; // The raw, messy paper data\n  \n  // ArXiv sometimes puts strings inside arrays, so we clean that up too\n  const cleanTitle = Array.isArray(paper.title) ? paper.title[0] : paper.title;\n  const cleanAbstract = Array.isArray(paper.summary) ? paper.summary[0] : paper.summary;\n  const cleanLink = Array.isArray(paper.id) ? paper.id[0] : paper.id;\n\n  // Return only the exact fields we want to send to the AI\n  return {\n    json: {\n      title: cleanTitle,\n      abstract: cleanAbstract,\n      link: cleanLink\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2096,
+        -112
+      ],
+      "id": "37c2a3e1-6521-4564-ab61-0993455c6023",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a senior AI researcher mentoring a 2nd-year CS student who works with PyTorch, Computer Vision, and GANs.\n\nRead the following paper abstract and output a strict JSON response. Do not include markdown formatting or backticks, just the raw JSON.\n\nPaper Title: {{ $json.title }}\nPaper Abstract: {{ $json.abstract }}\n\nOutput exactly this JSON structure:\n{\n  \"problem_and_solution\": \"In 2 sentences, explain what problem this paper solves and how.\",\n  \"tech_takeaway\": \"One bullet point highlighting a specific architecture, loss function, or layer used.\",\n  \"project_idea\": \"A 1-day beginner coding project idea in PyTorch based on this paper.\"\n}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        2304,
+        -112
+      ],
+      "id": "4c8d926e-58da-40d6-a09e-af6a6fb4f9f5",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {
+          "maxTokensToSample": 2048
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        2240,
+        96
+      ],
+      "id": "68403806-4537-4c5e-a622-14a4406e50bf",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "8W9LCug6hWqQWrEp",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map(item => {\n  // 1. Grab all the original data (Title, Abstract, Link) that came into this node\n  const originalData = item.json;\n  \n  // 2. Grab the AI's output and scrub the <think> tags\n  const rawOutput = originalData.output || \"\";\n  const cleanJSONString = rawOutput.replace(/<think>[\\s\\S]*?<\\/think>/g, '').trim();\n  \n  // 3. Parse the AI's JSON securely\n  let aiData = {};\n  try {\n    aiData = JSON.parse(cleanJSONString);\n  } catch (e) {\n    aiData = { project_idea: \"Error parsing AI output.\" };\n  }\n\n  // 4. MERGE everything together so Notion gets all 6 fields!\n  return {\n    json: {\n      title: originalData.title,\n      abstract: originalData.abstract,\n      link: originalData.link,\n      problem_and_solution: aiData.problem_and_solution,\n      tech_takeaway: aiData.tech_takeaway,\n      project_idea: aiData.project_idea\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2704,
+        -16
+      ],
+      "id": "df300a40-0885-4bf3-86a6-02c64b5e5746",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "https://www.notion.so/33fc1689d2638040a453e21653466673?v=33fc1689d263807ca215000c30a9d633&source=copy_link",
+          "mode": "url"
+        },
+        "title": "={{ $('Code in JavaScript1').item.json.title }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Abstract|rich_text",
+              "textContent": "={{ $('Code in JavaScript1').item.json.abstract }}"
+            },
+            {
+              "key": "Link|url",
+              "urlValue": "={{ $('Code in JavaScript1').item.json.link }}"
+            },
+            {
+              "key": "Solution|rich_text",
+              "textContent": "={{ $json.problem_and_solution }}"
+            },
+            {
+              "key": "Tech takeaway|rich_text",
+              "textContent": "={{ $json.tech_takeaway.tech_detail || $json.tech_takeaway }}"
+            },
+            {
+              "key": "Project idea|rich_text",
+              "textContent": "={{ $json.project_idea }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2976,
+        -160
+      ],
+      "id": "59f41365-1217-4416-90d2-f7487145f928",
+      "name": "Create a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "RGYbK9HqEbvNwrSJ",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        352,
+        -192
+      ],
+      "id": "4001dee8-eed1-48d4-aad3-6bf2f38fbf35",
+      "name": "When chat message received",
+      "webhookId": "9bef392a-9b58-4d95-a377-a5b616305c75"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "33fc1689-d263-8040-a453-e21653466673",
+          "mode": "list",
+          "cachedResultName": "PaperScout",
+          "cachedResultUrl": "https://www.notion.so/33fc1689d2638040a453e21653466673"
+        },
+        "returnAll": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        768,
+        240
+      ],
+      "id": "16fe8bc7-1a56-4adc-b94b-8d9bc2635575",
+      "name": "Get many database pages",
+      "credentials": {
+        "notionApi": {
+          "id": "RGYbK9HqEbvNwrSJ",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "id",
+              "field2": "property_link"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.compareDatasets",
+      "typeVersion": 2.3,
+      "position": [
+        1408,
+        16
+      ],
+      "id": "8076f150-718d-4ac8-8470-5a9efff26fff",
+      "name": "Compare Datasets"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.xml",
+      "typeVersion": 1,
+      "position": [
+        928,
+        -48
+      ],
+      "id": "a2ba6e37-5b92-4cd0-a122-6977127ca4b4",
+      "name": "XML"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "feed.entry",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1136,
+        -48
+      ],
+      "id": "0a56a11e-5706-486b-9993-98de92b88de8",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "maxItems": 2
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        1664,
+        0
+      ],
+      "id": "7cc88cc3-0516-4b95-848c-beccf54dfa64",
+      "name": "Limit"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get many database pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "XML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Create a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many database pages": {
+      "main": [
+        [
+          {
+            "node": "Compare Datasets",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "XML": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Compare Datasets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compare Datasets": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        []
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "97df2ba8-2bd7-4248-91e2-0d63310c68f4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "59feb2040bfa454b89bc65b4e08d8981f086f3b561856dccc1c658e96c49db91"
+  },
+  "id": "nXXLVUV452lVkGM1",
+  "tags": []
+}
